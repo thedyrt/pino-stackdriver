@@ -6,6 +6,9 @@ function pinoStackdriver (line) {
     // Parse the line into an object.
     obj = JSON.parse(line)
 
+    obj.message = obj.msg;
+    delete obj.msg;
+
     // Set the severity based on the level number.
     switch (obj.level) {
       case 10: obj.severity = 'DEBUG'; break
@@ -23,11 +26,11 @@ function pinoStackdriver (line) {
 
     if (obj.req) {
       obj.httpRequest = {
-        latency: obj.responseTime,
-        referer: obj.req.headers && obj.req.headers.referer,
-        remoteIp: obj.req.remoteAddress,
         requestMethod: obj.req.method,
         requestUrl: (obj.req.headers && obj.req.headers.host || '') + obj.req.url,
+        latency: `${obj.responseTime}ms`,
+        referer: obj.req.headers && obj.req.headers.referer,
+        remoteIp: obj.req.remoteAddress,
         userAgent: obj.req.headers && obj.req.headers['user-agent']
       }
 
