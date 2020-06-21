@@ -28,7 +28,7 @@ function pinoStackdriver (line) {
       obj.httpRequest = {
         requestMethod: obj.req.method,
         requestUrl: (obj.req.headers && obj.req.headers.host || '') + obj.req.url,
-        latency: `${obj.responseTime}ms`,
+        latency: `${obj.responseTime * 0.001}s`,
         referer: obj.req.headers && obj.req.headers.referer,
         remoteIp: obj.req.remoteAddress,
         userAgent: obj.req.headers && obj.req.headers['user-agent']
