@@ -4,30 +4,41 @@ const pumpify = require('pumpify')
 function pinoStackdriver (line) {
   try {
     // Parse the line into an object.
-    line = JSON.parse(line)
+    obj = JSON.parse(line)
 
     // Set the severity based on the level number.
-    switch (line.level) {
-      case 10: line.severity = 'DEBUG'; break
-      case 20: line.severity = 'DEBUG'; break
-      case 40: line.severity = 'WARNING'; break
-      case 50: line.severity = 'ERROR'; break
-      case 60: line.severity = 'CRITICAL'; break
-      default: line.severity = 'INFO'
+    switch (obj.level) {
+      case 10: obj.severity = 'DEBUG'; break
+      case 20: obj.severity = 'DEBUG'; break
+      case 40: obj.severity = 'WARNING'; break
+      case 50: obj.severity = 'ERROR'; break
+      case 60: obj.severity = 'CRITICAL'; break
+      default: obj.severity = 'INFO'
     }
 
     // Set time as a ISO string instead of Unix time.
-    if (line.time) {
-      line.time = new Date(line.time).toISOString()
+    if (obj.time) {
+      obj.time = new Date(obj.time).toISOString()
+    }
+
+    if (obj.req) {
+      obj.httpRequest = {
+        latency: obj.responseTime,
+        referer: obj.req.headers && obj.req.headers.referer,
+        remoteIp: obj.req.remoteAddress,
+        requestMethod: obj.req.method,
+        requestUrl: (obj.req.headers && obj.req.headers.host || '') + obj.req.url,
+        userAgent: obj.req.headers && obj.req.headers['user-agent']
+      }
+
+      if (obj.res) { obj.httpRequest.status = obj.res.statusCode; }
     }
 
     // Convert the object back to a JSON string.
-    line = JSON.stringify(line) + '\n'
+    return JSON.stringify(obj) + '\n'
   } catch (err) {
-    // Don't need to handle the error, just return the original line.
+    return line + '\n'
   }
-
-  return line
 }
 
 const transform = split(pinoStackdriver)
