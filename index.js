@@ -31,10 +31,13 @@ function pinoStackdriver (line) {
         latency: `${obj.responseTime * 0.001}s`,
         referer: obj.req.headers && obj.req.headers.referer,
         remoteIp: obj.req.remoteAddress,
-        userAgent: obj.req.headers && obj.req.headers['user-agent']
+        userAgent: obj.req.headers && obj.req.headers['user-agent'],
       }
 
-      if (obj.res) { obj.httpRequest.status = obj.res.statusCode; }
+      if (obj.res) {
+        obj.httpRequest.status = obj.res.statusCode;
+        obj.httpRequest.responseSize = parseInt(obj.res.headers['content-length']) || null;
+      }
     }
 
     // Convert the object back to a JSON string.
